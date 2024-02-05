@@ -1,0 +1,55 @@
+
+// Program: Magic MT4 to Telegram
+// Developer: Forex Robot Easy Team
+// Developer's Site: forexroboteasy.com
+
+// Include necessary libraries
+#include <Telegram.mqh>
+
+// Declare global variables
+string token = 'YOUR_TELEGRAM_BOT_TOKEN'; // Replace with your Telegram bot token
+int chatID = YOUR_TELEGRAM_CHAT_ID; // Replace with your Telegram chat ID
+
+// Function to send message to Telegram
+void sendTelegramMessage(string message) {
+    // Create an instance of the Telegram class
+    CTgBot tg;
+
+    // Set the Telegram bot token
+    tg.SetToken(token);
+
+    // Set the chat ID
+    tg.SetChatID(chatID);
+
+    // Send the message
+    tg.SendMessage(message);
+}
+
+// Function to check for changes in trading positions
+void checkTradingPositions() {
+    // Check for changes in trading positions
+    if (IsTradeAllowed()) {
+        // Get the number of open positions
+        int totalPositions = OrdersTotal();
+
+        // Check if there are any open positions
+        if (totalPositions > 0) {
+            // Get the details of each open position
+            for (int i = 0; i < totalPositions; i++) {
+                if (OrderSelect(i, SELECT_BY_POS) && OrderMagicNumber() == MAGIC_NUMBER) {
+                    // Check if the position has been closed
+                    if (OrderCloseTime() > 0) {
+                        // Send a notification to Telegram
+                        sendTelegramMessage('Position closed: ' + OrderSymbol());
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Entry point of the program
+void OnStart() {
+    // Check for changes in trading positions
+    checkTradingPositions();
+}
